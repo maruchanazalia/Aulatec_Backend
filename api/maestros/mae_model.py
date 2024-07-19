@@ -7,3 +7,5 @@ class Maestros(db.Model):
     ape_paterno = db.Column(db.String(100), nullable=False)
     ape_materno = db.Column(db.String(100), nullable=False)
     correo = db.Column(db.String(100), unique=True, nullable=False)
+
+    prestamos = db.relationship('Prestamos', back_populates='maestro')
