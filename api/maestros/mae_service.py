@@ -32,5 +32,18 @@ def delete_maestro(maestro_id):
         return True
     return False
 
+def delete_maestros(maestro_ids):
+    try:
+        for maestro_id in maestro_ids:
+            maestro = Maestros.query.get(maestro_id)
+            if maestro:
+                db.session.delete(maestro)
+        db.session.commit()
+        return True
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting maestros: {e}")
+        return False
+
 
 

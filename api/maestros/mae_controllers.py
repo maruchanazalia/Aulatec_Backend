@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from api.maestros.mae_service import get_all_maestros, get_maestro_by_id, create_maestro, update_maestro, delete_maestro
+from api.maestros.mae_service import get_all_maestros, get_maestro_by_id, create_maestro, update_maestro, delete_maestro, delete_maestros
 
 def get_maestros():
     maestros = get_all_maestros()
@@ -28,3 +28,17 @@ def remove_maestro(maestro_id):
     if success:
         return jsonify({'message': 'Maestro deleted successfully'}), 200
     return jsonify({'message': 'Maestro not found'}), 404
+
+def delete_maestros_controller():
+    data = request.get_json()
+    maestro_ids = data.get('maestro_ids', [])
+    
+    if not maestro_ids:
+        return jsonify({"error": "No maestro IDs provided"}), 400
+
+    success = delete_maestros(maestro_ids)
+    
+    if success:
+        return jsonify({"message": "Maestros deleted successfully"}), 200
+    else:
+        return jsonify({"error": "Failed to delete maestros"}), 500

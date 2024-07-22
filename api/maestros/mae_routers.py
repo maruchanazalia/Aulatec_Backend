@@ -1,5 +1,5 @@
 from flask import Blueprint
-from api.maestros.mae_controllers import get_maestros, get_maestro, add_maestro, update_maestro_info, remove_maestro
+from api.maestros.mae_controllers import get_maestros, get_maestro, add_maestro, update_maestro_info, remove_maestro, delete_maestros_controller
 from Jwt.auth import auth_required
 
 maestros_blueprint = Blueprint('maestros', __name__)
@@ -23,3 +23,7 @@ def update(maestro_id):
 @maestros_blueprint.route('/<int:maestro_id>', methods=['DELETE'])
 def delete(maestro_id):
     return remove_maestro(maestro_id)
+
+@maestros_blueprint.route('/delete_maestros', methods=['POST'])
+def delete_maestros_route():
+    return delete_maestros_controller()
