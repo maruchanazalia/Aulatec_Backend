@@ -79,22 +79,45 @@ def get_prestamo_info(prestamo_id):
         'hora_salida': prestamo.hora_salida.strftime('%H:%M:%S')
     }
 
-def calculate_hours(start_time, end_time):
+
+
+# Función para calcular las horas de uso del proyector
+def calculate_used_hours(start_time, end_time):
     FMT = '%H:%M:%S'
-    tdelta = datetime.strptime(end_time, FMT) - datetime.strptime(start_time, FMT)
-    if tdelta.days < 0:
-        tdelta = timedelta(days=0, seconds=tdelta.seconds, microseconds=tdelta.microseconds)
-    return tdelta.seconds / 3600
+    start = datetime.strptime(start_time, FMT)
+    end = datetime.strptime(end_time, FMT)
+    
+    # Calcula la diferencia de tiempo entre la hora de salida y la hora de entrada
+    tdelta = end - start
+    
+    # Ajusta la diferencia si el préstamo cruza la medianoche
+    if tdelta.total_seconds() < 0:
+        tdelta += timedelta(days=1)
+    
+    # Calcula las horas usadas
+    horas_usadas = tdelta.total_seconds() / 3600
+
+    # Retorna las horas usadas
+    return horas_usadas
 
 def get_prestamos_by_maestro(maestro_id):
     prestamos = Prestamos.query.filter_by(id_maestro=maestro_id).all()
     usage_by_date = {}
+    
     for prestamo in prestamos:
         fecha = prestamo.fecha_entrada.strftime('%Y-%m-%d')
-        horas_usadas = calculate_hours(prestamo.hora_entrada.strftime('%H:%M:%S'), prestamo.hora_salida.strftime('%H:%M:%S'))
+        
+        # Calcula las horas usadas para cada préstamo
+        horas_usadas = calculate_used_hours(
+            prestamo.hora_entrada.strftime('%H:%M:%S'),
+            prestamo.hora_salida.strftime('%H:%M:%S')
+        )
+        
+        # Acumula las horas usadas para cada fecha
         if fecha in usage_by_date:
             usage_by_date[fecha] += horas_usadas
         else:
             usage_by_date[fecha] = horas_usadas
+
     result = [{"fecha": date, "horas": hours} for date, hours in usage_by_date.items()]
-    return result
+    return {"prestamos": result}

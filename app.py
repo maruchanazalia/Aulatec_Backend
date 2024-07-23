@@ -10,7 +10,7 @@ from api.proyectores.pro_routers import proyectores_blueprint
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:azalia26@localhost/aulatec'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://martinez:123456789@aulatech.casexdopqnza.us-east-1.rds.amazonaws.com/aulatech'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your_secret_key'
 
