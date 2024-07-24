@@ -32,3 +32,15 @@ def delete_proyector(proyector_id):
         db.session.commit()
         return True
     return False
+
+def toggle_proyector_status(proyector_id):
+    proyector = Proyectores.query.get(proyector_id)
+    if proyector:
+        if proyector.status == 'habilitado':
+            proyector.status = 'deshabilitado'
+        else:
+            proyector.status = 'habilitado'
+        db.session.commit()
+        return proyector
+    return None
+

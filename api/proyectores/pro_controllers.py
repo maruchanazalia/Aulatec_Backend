@@ -1,5 +1,5 @@
 from flask import jsonify, request, render_template
-from api.proyectores.pro_service import get_all_proyectores, get_proyector_by_id, create_proyector, update_proyector, delete_proyector
+from api.proyectores.pro_service import get_all_proyectores, get_proyector_by_id, create_proyector, update_proyector, delete_proyector, toggle_proyector_status
 #from api.email_service import send_email
 
 def get_proyectores():
@@ -28,6 +28,16 @@ def remove_proyector(proyector_id):
     success = delete_proyector(proyector_id)
     if success:
         return jsonify({'message': 'Proyector deleted successfully'}), 200
+    return jsonify({'message': 'Proyector not found'}), 404
+
+
+def toggle_proyector_status_controller(proyector_id):
+    proyector = toggle_proyector_status(proyector_id)
+    if proyector:
+        return jsonify({
+            'id': proyector.id,
+            'status': proyector.status
+        }), 200
     return jsonify({'message': 'Proyector not found'}), 404
 
 

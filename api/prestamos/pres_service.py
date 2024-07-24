@@ -80,24 +80,17 @@ def get_prestamo_info(prestamo_id):
     }
 
 
-
-# Función para calcular las horas de uso del proyector
 def calculate_used_hours(start_time, end_time):
     FMT = '%H:%M:%S'
     start = datetime.strptime(start_time, FMT)
     end = datetime.strptime(end_time, FMT)
-    
-    # Calcula la diferencia de tiempo entre la hora de salida y la hora de entrada
     tdelta = end - start
     
-    # Ajusta la diferencia si el préstamo cruza la medianoche
     if tdelta.total_seconds() < 0:
         tdelta += timedelta(days=1)
     
-    # Calcula las horas usadas
     horas_usadas = tdelta.total_seconds() / 3600
 
-    # Retorna las horas usadas
     return horas_usadas
 
 def get_prestamos_by_maestro(maestro_id):
@@ -107,13 +100,11 @@ def get_prestamos_by_maestro(maestro_id):
     for prestamo in prestamos:
         fecha = prestamo.fecha_entrada.strftime('%Y-%m-%d')
         
-        # Calcula las horas usadas para cada préstamo
         horas_usadas = calculate_used_hours(
             prestamo.hora_entrada.strftime('%H:%M:%S'),
             prestamo.hora_salida.strftime('%H:%M:%S')
         )
         
-        # Acumula las horas usadas para cada fecha
         if fecha in usage_by_date:
             usage_by_date[fecha] += horas_usadas
         else:
@@ -121,3 +112,113 @@ def get_prestamos_by_maestro(maestro_id):
 
     result = [{"fecha": date, "horas": hours} for date, hours in usage_by_date.items()]
     return {"prestamos": result}
+
+
+#get horas proyector
+def calculate_used_hours(start_time, end_time):
+    FMT = '%H:%M:%S'
+    start = datetime.strptime(start_time, FMT)
+    end = datetime.strptime(end_time, FMT)
+
+    tdelta = end - start
+    if tdelta.total_seconds() < 0:
+        tdelta += timedelta(days=1)
+
+    horas_usadas = tdelta.total_seconds() / 3600
+    total_horas = horas_usadas + horas_usadas + horas_usadas
+    print(f"Start: {start_time}, End: {end_time}, Total Horas: {total_horas}")
+
+    return total_horas
+
+def get_all_proyectores_horas_usadas():
+    proyectores = Proyectores.query.all()
+    proyector_horas = []
+
+    for proyector in proyectores:
+        total_horas = get_proyector_horas_usadas(proyector.id)
+        proyector_horas.append({
+            'proyector_nombre': proyector.numero_serie,
+            'total_horas_usadas': total_horas
+        })
+
+    return proyector_horas
+
+
+#get horas maestros 
+def calculate_used_hours(start_time, end_time):
+    FMT = '%H:%M:%S'
+    start = datetime.strptime(start_time, FMT)
+    end = datetime.strptime(end_time, FMT)
+
+    tdelta = end - start
+    if tdelta.total_seconds() < 0:
+        tdelta += timedelta(days=1)
+
+    horas_usadas = tdelta.total_seconds() / 3600
+
+    return horas_usadas
+
+def get_maestro_horas_usadas():
+    maestros = Maestros.query.all()
+    maestro_horas = []
+
+    for maestro in maestros:
+        prestamos = Prestamos.query.filter_by(id_maestro=maestro.id).all()
+        
+        total_horas = sum(
+            calculate_used_hours(
+                prestamo.hora_entrada.strftime('%H:%M:%S'),
+                prestamo.hora_salida.strftime('%H:%M:%S')
+            )
+            for prestamo in prestamos
+        )
+
+        maestro_horas.append({
+            'maestro_nombre': f"{maestro.nombre} {maestro.ape_paterno} {maestro.ape_materno}",
+            'total_horas_usadas': total_horas
+        })
+
+    return maestro_horas
+
+#GET de disponibilidad y uso de proyectores
+def get_proyector_horas_usadas(proyector_id):
+    prestamos = Prestamos.query.filter_by(id_proyector=proyector_id).all()
+    total_horas_usadas = sum([(p.hora_salida.hour - p.hora_entrada.hour) for p in prestamos if p.hora_salida and p.hora_entrada])
+    return total_horas_usadas
+
+def get_proyectores_disponibilidad():
+    proyectores = Proyectores.query.all()
+    total_horas_del_dia = 24
+
+    proyector_disponibilidad = []
+    for proyector in proyectores:
+        total_horas_usadas = get_proyector_horas_usadas(proyector.id)
+        porcentaje_disponibilidad = ((total_horas_del_dia - total_horas_usadas) / total_horas_del_dia) * 100
+        proyector_disponibilidad.append({
+            'proyector_nombre': proyector.numero_serie,
+            'total_horas_usadas': total_horas_usadas,
+            'porcentaje_disponibilidad': porcentaje_disponibilidad
+        })
+
+    return proyector_disponibilidad
+
+#para guardar datos de mysql RFID
+def create_prestamo(id_maestro, id_proyector, fecha_salida, hora_salida, fecha_entrada=None, hora_entrada=None):
+    try:
+        nuevo_prestamo = Prestamos(
+            id_maestro=id_maestro,
+            id_proyector=id_proyector,
+            fecha_salida=fecha_salida,
+            hora_salida=hora_salida,
+            fecha_entrada=fecha_entrada,
+            hora_entrada=hora_entrada
+        )
+        db.session.add(nuevo_prestamo)
+        db.session.commit()
+        return nuevo_prestamo
+    except Exception as e:
+        db.session.rollback()
+        raise e
+
+
+

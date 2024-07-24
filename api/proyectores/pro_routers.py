@@ -1,5 +1,5 @@
 from flask import Blueprint
-from api.proyectores.pro_controllers import get_proyectores, get_proyector, add_proyector, update_proyector_info, remove_proyector, send_projector_email
+from api.proyectores.pro_controllers import get_proyectores, get_proyector, add_proyector, update_proyector_info, remove_proyector, send_projector_email, toggle_proyector_status_controller
 
 proyectores_blueprint = Blueprint('proyectores', __name__)
 
@@ -22,6 +22,12 @@ def update(proyector_id):
 @proyectores_blueprint.route('/<int:proyector_id>', methods=['DELETE'])
 def delete(proyector_id):
     return remove_proyector(proyector_id)
+
+@proyectores_blueprint.route('/toggle_status/<int:proyector_id>', methods=['PUT'])
+def toggle_status(proyector_id):
+    return toggle_proyector_status_controller(proyector_id)
+
+
 
 @proyectores_blueprint.route('/send-email/<int:proyector_id>', methods=['POST'])
 def send_email_route(proyector_id):
