@@ -2,7 +2,7 @@ from bd.bd import db
 from api.maestros.mae_model import Maestros
 from api.prestamos.pres_models import Prestamos
 from api.proyectores.pro_model import Proyectores
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from collections import defaultdict
 
 def get_maestro_and_proyector_by_prestamo(prestamo_id):
@@ -203,8 +203,19 @@ def get_proyectores_disponibilidad():
     return proyector_disponibilidad
 
 #para guardar datos de mysql RFID
-def create_prestamo(id_maestro, id_proyector, fecha_salida, hora_salida, fecha_entrada=None, hora_entrada=None):
+def create_prestamo(id_maestro, id_proyector, hora_salida, hora_entrada=None, fecha_entrada=None):
     try:
+        if isinstance(hora_salida, str):
+            hora_salida = datetime.strptime(hora_salida, "%H:%M:%S").time()
+        
+        if hora_entrada and isinstance(hora_entrada, str):
+            hora_entrada = datetime.strptime(hora_entrada, "%H:%M:%S").time()
+
+        fecha_salida = date.today()
+
+        if not fecha_entrada:
+            fecha_entrada = date.today()
+
         nuevo_prestamo = Prestamos(
             id_maestro=id_maestro,
             id_proyector=id_proyector,
@@ -215,10 +226,10 @@ def create_prestamo(id_maestro, id_proyector, fecha_salida, hora_salida, fecha_e
         )
         db.session.add(nuevo_prestamo)
         db.session.commit()
+        
         return nuevo_prestamo
+
     except Exception as e:
         db.session.rollback()
         raise e
-
-
 
