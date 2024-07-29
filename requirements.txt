@@ -1,5 +1,4 @@
 Flask==2.1.1
-Flask-SQLAlchemy
 Flask-HTTPAuth==4.3.0
 PyJWT==2.3.0
 Werkzeug==2.1.1
@@ -8,3 +7,4 @@ Flask-Mail
 mysqlclient
 PyMySQL
 gunicorn
+flask-sqlalchemy

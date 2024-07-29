@@ -24,4 +24,4 @@ app.register_blueprint(maestros_blueprint, url_prefix='/maestros')
 app.register_blueprint(prestamo_blueprint, url_prefix='/prestamos')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
