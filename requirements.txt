@@ -7,4 +7,4 @@ Flask-Mail
 mysqlclient
 PyMySQL
 gunicorn
-flask-sqlalchemy
+flask-sqlalchemy==2.5.1
