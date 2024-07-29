@@ -7,7 +7,7 @@ from api.maestros.mae_routers import maestros_blueprint
 from api.prestamos.pres_router import prestamo_blueprint
 from api.proyectores.pro_routers import proyectores_blueprint
 
-app = Flask(__name__)
+app = Flask(__file__)
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://martinez:123456789@aulatech.casexdopqnza.us-east-1.rds.amazonaws.com/aulatech'
@@ -23,5 +23,5 @@ app.register_blueprint(proyectores_blueprint, url_prefix='/proyectores')
 app.register_blueprint(maestros_blueprint, url_prefix='/maestros')
 app.register_blueprint(prestamo_blueprint, url_prefix='/prestamos')
 
-if __name__ == '__main__':
+if __file__ == '__main__':
     app.run(host='0.0.0.0')
